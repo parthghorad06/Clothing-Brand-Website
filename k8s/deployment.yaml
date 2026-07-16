@@ -1,0 +1,7 @@
+spec:
+  containers:
+    - name: thetagless
+      image: parth0645/thetagless:latest
+      imagePullPolicy: Always
+      ports:
+        - containerPort: 80
