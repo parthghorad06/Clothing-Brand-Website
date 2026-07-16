@@ -98,7 +98,7 @@ p{
     background:
         linear-gradient(rgba(0,0,0,.60),
         rgba(0,0,0,.60)),
-        url("../images/hero.jpg");
+        url("../images/hero-new.jpg");
 
     background-size:cover;
     background-position:center;
@@ -270,7 +270,7 @@ font-size:18px;
 .hero{
     background:
         linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.6)),
-        url("../images/hero.jpg");
+        url("../images/hero-new.jpg");
     background-size: cover;
     background-position: center;
 }
