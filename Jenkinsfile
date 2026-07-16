@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "thetagless:v1"
-        CONTAINER_NAME = "website"
+        IMAGE_NAME = "parth0645/thetagless"
+        IMAGE_TAG = "latest"
     }
 
     stages {
@@ -16,31 +16,59 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME .'
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
 
-        stage('Remove Old Container') {
+        stage('Login to Docker Hub') {
             steps {
-                sh 'docker rm -f $CONTAINER_NAME || true'
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    echo "$DOCKER_PASS" | docker login \
+                    -u "$DOCKER_USER" \
+                    --password-stdin
+                    '''
+                }
             }
         }
 
-        stage('Run Docker Container') {
+        stage('Push Image') {
             steps {
-                sh 'docker run -d --name $CONTAINER_NAME -p 80:80 $IMAGE_NAME'
+                sh 'docker push $IMAGE_NAME:$IMAGE_TAG'
             }
         }
 
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                kubectl apply -f k8s/
+                kubectl rollout restart deployment thetagless-deployment
+                kubectl rollout status deployment/thetagless-deployment
+                '''
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sh '''
+                kubectl get pods
+                kubectl get svc
+                '''
+            }
+        }
     }
 
     post {
         success {
-            echo 'Website deployed successfully!'
+            echo 'Deployment Successful!'
         }
 
         failure {
-            echo 'Deployment failed!'
+            echo 'Deployment Failed!'
         }
     }
 }
