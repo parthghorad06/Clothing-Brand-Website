@@ -1,7 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: thetagless-deployment
+
 spec:
-  containers:
-    - name: thetagless
-      image: parth0645/thetagless:latest
-      imagePullPolicy: Always
-      ports:
-        - containerPort: 80
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: thetagless
+
+  template:
+    metadata:
+      labels:
+        app: thetagless
+
+    spec:
+      containers:
+        - name: thetagless
+          image: parth0645/thetagless:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
